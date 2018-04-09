@@ -12,7 +12,7 @@ const port = process.env.PORT || 3000;
 
 /* Database Connection */
 var LinkModel = require('./models/link');
-mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/shortifyIt');
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/shortifyIt');
 /* Database Connection */
 
 
