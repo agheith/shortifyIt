@@ -79,7 +79,7 @@ app.post('/api/short', (req, res) => {
 
 /*----------------- POST Route - Original Linnk  -----------------*/
 app.post('/api/:longUrl', function(req, res){
-  var userLongUrl = req.body.longUrl.slice(22);
+  var userLongUrl = req.body.longUrl.slice(48);
 
   console.log('req.body.encoded_id is ', userLongUrl);
 
