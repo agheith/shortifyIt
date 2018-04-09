@@ -43,7 +43,7 @@ app.post('/api/short', (req, res) => {
       if(doc) {
         //URL has already been shortned
         // base62 encode the unique _id and create the shortUrl
-        shortUrl = `http://localhost:3000/${base62.encode(doc._id)}`;
+        shortUrl = `https://limitless-anchorage-45624.herokuapp.com/${base62.encode(doc._id)}`;
 
 
         res.send({
@@ -65,7 +65,7 @@ app.post('/api/short', (req, res) => {
           }
 
           //create the shortUrl
-          shortUrl = `http://localhost:3000/${base62.encode(newUrl._id)}`;
+          shortUrl = `https://limitless-anchorage-45624.herokuapp.com/${base62.encode(newUrl._id)}`;
           console.log('second res', shortUrl);
           res.send( { 'shortUrl': shortUrl, userUrl: userUrl  } )
         });
