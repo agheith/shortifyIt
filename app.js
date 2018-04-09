@@ -76,10 +76,28 @@ app.post('/api/short', (req, res) => {
   }
 });
 /*----------------- POST Route Ends  -----------------*/
+/*----------------- Get Route to redirect  -----------------*/
+app.get('/:encoded_id', function(req, res){
+  var base62Id = req.params.encoded_id;
+  var id = base62.decode(base62Id);
+
+  // check if url already exists in database
+  LinkModel.findOne({_id: id}, function (err, doc){
+    if (doc) {
+      // found an entry in the DB, redirect the user to their destination
+      res.redirect(doc.destination);
+    } else {
+      // nothing found, take 'em home
+      res.redirect('https://limitless-anchorage-45624.herokuapp.com/');
+    }
+  });
+
+});
+/*----------------- Get Route to redirect  -----------------*/
 
 /*----------------- POST Route - Original Linnk  -----------------*/
 app.post('/api/:longUrl', function(req, res){
-  var userLongUrl = req.body.longUrl.slice(48);
+  var userLongUrl = req.body.longUrl.slice(22);
 
   console.log('req.body.encoded_id is ', userLongUrl);
 
