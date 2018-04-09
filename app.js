@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const mongodb = require("mongodb");
 const isURL = require('validator/lib/isURL');
 const base62 = require('./utils/base62.js');
-const keys = require('./config/keys.js');
+// const keys = require('./config/keys.js');
 
 const port = process.env.PORT || 3000;
 
