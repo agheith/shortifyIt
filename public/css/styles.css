@@ -1,0 +1,43 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: rgb(2,0,36);
+  background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(63,227,0,0.23433123249299714) 0%);
+}
+
+.alert{
+  margin-top: 20px
+}
+
+.error-message {
+  color: #E13247;
+}
+
+.longForm{
+  margin-top: 30px;
+}
+
+.page-header {
+  text-align: center;
+  border-bottom: 0.5px solid white;
+  padding: 60px 60px 60px 30px;
+  color: white;
+  text-shadow: 2px 2px 4px #000000;
+  font-size: 75px;
+}
+
+.wrapper {
+  padding-top: 70px;
+}
+
+
+.inner-wrapper {
+  margin-top: 100px;
+  align-content: center;
+}
+
+.url-input {
+  width: 700px;
+}
