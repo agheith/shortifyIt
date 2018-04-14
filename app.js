@@ -102,7 +102,7 @@ app.get('/:encoded_id', function(req, res){
       }
     } else {
       // nothing found, take 'em home
-      res.redirect(`${domain}`);
+      res.redirect(`http://${domain}/`);
     }
   });
 
