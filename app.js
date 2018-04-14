@@ -112,7 +112,7 @@ app.get('/:encoded_id', function(req, res){
 /*----------------- POST Route - Original Linnk  -----------------*/
 app.post('/api/:longUrl', function(req, res){
   let domain = req.headers.host;
-  // domain = 'http://' + domain + '/';
+  domain = 'http://' + domain + '/';
   console.log(domain);
   let userLongUrl = req.body.longUrl.slice(domain.length);
 
