@@ -13,7 +13,7 @@ const LinkSchema = new Schema({
 });
 
 LinkSchema.pre('save', function(next){
-  var doc = this;
+  let doc = this;
   CounterSchema.findByIdAndUpdate({ _id: 'url_count' }, { $inc: { count: 1 } }, function(err, counter) {
     if(err) return next(err);
     doc._id = counter.count;

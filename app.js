@@ -3,15 +3,14 @@ const app = express();
 const path = require('path');
 const bp = require('body-parser');
 const mongoose = require('mongoose');
-const mongodb = require("mongodb");
 const isURL = require('validator/lib/isURL');
-const base62 = require('./utils/base62.js');
-// const keys = require('./config/keys.js');
+const { encode, decode } = require('./utils/base62.js');
+const { validateUrl, validateEmail } = require('./utils/validation-helpers.js');
 
 const port = process.env.PORT || 3000;
 
 /* Database Connection */
-var LinkModel = require('./models/link');
+const LinkModel = require('./models/link');
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/shortifyIt');
 /* Database Connection */
 
@@ -30,20 +29,30 @@ app.get('/', (req, res) => {
 
 /*----------------- POST Route- Create a shor URL  -----------------*/
 app.post('/api/short', (req, res) => {
-  var userUrl = req.body.url;
-  console.log(isURL(req.body.url));
-  var shortUrl = '';
-  if (!/^(f|ht)tps?:\/\//i.test(userUrl)) {
-      userUrl = "http://" + userUrl;
+
+  let shortUrl = '';
+  let userUrl;
+  let domain = req.headers.host;
+
+  if(validateUrl(req.body.url)) {
+    userUrl = req.body.url;
+    console.log('its a link', userUrl);
+  } else if (!/^(f|ht)tps?:\/\//i.test(req.body.url) && !validateEmail(req.body.url)) {
+    userUrl = 'http://' + req.body.url;
+    console.log('its a link with embedded http', userUrl);
+  } else if (validateEmail(req.body.url)) {
+    userUrl = req.body.url;
+    console.log('its an email', userUrl);
   }
+
   //Check if url already exits in DB
-  if(userUrl && isURL(userUrl)) {
-    // console.log(userUrl);
+  if(userUrl && isURL(userUrl) || validateEmail(userUrl)) {
     LinkModel.findOne({ destination: userUrl }, function(err, doc) {
       if(doc) {
         //URL has already been shortned
         // base62 encode the unique _id and create the shortUrl
-        shortUrl = `https://limitless-anchorage-45624.herokuapp.com/${base62.encode(doc._id)}`;
+        console.log(domain);
+        shortUrl = `${domain}/${encode(doc._id)}`;
 
 
         res.send({
@@ -54,7 +63,7 @@ app.post('/api/short', (req, res) => {
       } else {
 
         //create a new entry
-        var newUrl = LinkModel({
+        const newUrl = LinkModel({
           destination: userUrl
         });
 
@@ -65,7 +74,7 @@ app.post('/api/short', (req, res) => {
           }
 
           //create the shortUrl
-          shortUrl = `https://limitless-anchorage-45624.herokuapp.com/${base62.encode(newUrl._id)}`;
+          shortUrl = `http://${domain}/${encode(newUrl._id)}`;
           console.log('second res', shortUrl);
           res.send( { 'shortUrl': shortUrl, userUrl: userUrl  } )
         });
@@ -76,19 +85,24 @@ app.post('/api/short', (req, res) => {
   }
 });
 /*----------------- POST Route Ends  -----------------*/
+
 /*----------------- Get Route to redirect  -----------------*/
 app.get('/:encoded_id', function(req, res){
-  var base62Id = req.params.encoded_id;
-  var id = base62.decode(base62Id);
-
+  let base62Id = req.params.encoded_id;
+  let id = decode(base62Id);
+  let domain = req.headers.host;
   // check if url already exists in database
   LinkModel.findOne({_id: id}, function (err, doc){
     if (doc) {
-      // found an entry in the DB, redirect the user to their destination
-      res.redirect(doc.destination);
+      if(validateEmail(doc.destination)) {
+        res.redirect(`mailto:${doc.destination}`)
+      } else {
+        // found an entry in the DB, redirect the user to their destination
+        res.redirect(doc.destination);
+      }
     } else {
       // nothing found, take 'em home
-      res.redirect('https://limitless-anchorage-45624.herokuapp.com/');
+      res.redirect(`${domain}`);
     }
   });
 
@@ -97,18 +111,21 @@ app.get('/:encoded_id', function(req, res){
 
 /*----------------- POST Route - Original Linnk  -----------------*/
 app.post('/api/:longUrl', function(req, res){
-  var userLongUrl = req.body.longUrl.slice(48);
+  let domain = req.headers.host;
+  // domain = 'http://' + domain + '/';
+  console.log(domain);
+  let userLongUrl = req.body.longUrl.slice(domain.length);
 
   console.log('req.body.encoded_id is ', userLongUrl);
+  // console.log(req.headers.host);
 
-  var id = base62.decode(userLongUrl);
+  let id = decode(userLongUrl);
 
   console.log('id ', id);
 
   // check if url already exists in database
   LinkModel.findOne({_id: id}, function (err, doc){
     if (doc) {
-      console.log(doc);
       userUrl = doc.destination;
       res.send({ userUrl: userUrl })
       // found an entry in the DB, redirect the user to their destination
